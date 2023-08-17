@@ -6,7 +6,10 @@ postgresComposeService="postgres"
 
 function compose_client() {
   flags=($@)
-  compose_files=$(for i in `ls -r ${PLEXTRAC_HOME}/docker-compose*.yml`; do printf " -f %s" "$i"; done )
+  targetComposeFile="${PLEXTRAC_HOME}/docker-compose.yml"
+  targetOverrideFile="${PLEXTRAC_HOME}/docker-compose.override.yml"
+  fileFlag="-f"
+  compose_files=$(printf '%s %s %s %s' "$fileFlag" "$targetComposeFile" "$fileFlag" "$targetOverrideFile")
   debug "docker compose flags: ${flags[*]}"
   debug "docker compose configs: ${compose_files}"
   # shellcheck disable=SC2086,SC2068
