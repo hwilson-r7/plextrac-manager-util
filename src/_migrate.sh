@@ -81,7 +81,7 @@ function mod_migrate() {
     info "Example Commands:"
     log ""
     log "  # docker stop"
-    log "  # docker-compose create"
+    log "  # docker compose create"
     log "  # cp -aR /var/lib/docker/volumes/compose-files_dbdata/_data/. /var/lib/docker/volumes/plextrac_dbdata/_data/"
     log "  # cp -aR ${PLEXTRAC_HOME}/uploads/. /var/lib/docker/volumes/plextrac_uploads/_data/"
     log "  # plextrac install"
@@ -131,7 +131,7 @@ function migrate_archiveLegacyComposeFiles() {
 }
 
 function checkExistingConfigForOverrides() {
-  info "Checking for overrides to the legacy docker-compose configuration"
+  info "Checking for overrides to the legacy docker compose configuration"
   composeOverrideFile="${PLEXTRAC_HOME}/docker-compose.override.yml"
   case ${1:-1} in
     1)
@@ -147,14 +147,14 @@ function checkExistingConfigForOverrides() {
   esac
 
   info "Checking legacy configuration"
-  dcCMD="docker-compose -f $legacyComposeFile -f $legacyDatabaseFile"
+  dcCMD="docker compose -f $legacyComposeFile -f $legacyDatabaseFile"
   ${dcCMD} config -q || die "Invalid legacy configuration - please contact support"
 
   decodedComposeFile=$(base64 -d <<<$DOCKER_COMPOSE_ENCODED)
   #diff -N --unified=2 --color=always --label existing --label "updated" $targetComposeFile <(echo "$decodedComposeFile") || return 0
   diff --unified --color=always --show-function-line='^\s\{2\}\w\+' \
     <($dcCMD config --no-interpolate) \
-    <(docker-compose -f - <<< "${decodedComposeFile}" -f $composeOverrideFile config --no-interpolate) || return 0
+    <(docker compose -f - <<< "${decodedComposeFile}" -f "${composeOverrideFile}" config --no-interpolate) || return 0
   return 1
-  #diff --color=always -y --left-column <($dcCMD config --format=json | jq -S . -r) <(docker-compose -f - <<< "$decodedComposeFile" -f $composeOverrideFile config --format=json | jq -S . -r) | grep -v '^\+'
+  #diff --color=always -y --left-column <($dcCMD config --format=json | jq -S . -r) <(docker compose -f - <<< "$decodedComposeFile" -f $composeOverrideFile config --format=json | jq -S . -r) | grep -v '^\+'
 }
